@@ -1,6 +1,9 @@
 # vscode
 .vscode
 
+# python
+/__pycache__
+
 # training and testing data
 /input
 
