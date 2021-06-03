@@ -20,7 +20,7 @@ class Network:
         train_data["Embarked"].replace({"S": 0, "C": 1, "Q": 2}, inplace=True)
 
         # to numpy
-        self.train = train_data.to_numpy()
+        self.train = train_data.to_numpy().astype(float)
 
         # normalize data (standard score)
         # don't normalize "Survived" because it is expected values
@@ -35,9 +35,9 @@ class Network:
         # layers
         size1 = 8
         size2 = 5
-        size3 = 1
+        size3 = 2
 
-        self.w1 = np.random.rand(size1, self.train.shape[0])
+        self.w1 = np.random.rand(size1, self.train.shape[1] - 1)
         self.b1 = np.random.randn(size1, 1)
 
         self.w2 = np.random.rand(size2, size1)
@@ -71,21 +71,21 @@ class Network:
         inputs = choices.T[1:]
         expected = choices.T[0]
 
-        return inputs, expected
+        return inputs, expected.astype(int)
 
     def one_hot(self, x):
-        a = [0, 0]
-        a[x] = 1
-        return np.array(a)
+        one_hot = np.zeros((x.size, 2))
+        one_hot[np.arange(x.size), x] = 1
+        return one_hot.T
 
     def for_prop(self, inputs):
         self.z1 = self.w1.dot(inputs) + self.b1
         self.a1 = self.sigmoid(self.z1)
 
         self.z2 = self.w2.dot(self.a1) + self.b2
-        self.a2 = self.sigmoid(self.z1)
+        self.a2 = self.sigmoid(self.z2)
 
-        self.z3 = self.w3.dot(self.a2) + self.b3
+        self.z3 = self.w3.dot(self.a2) #+ self.b3
         self.a3 = self.softmax(self.z3)
 
     def back_prop(self, inputs, expected):
@@ -94,7 +94,7 @@ class Network:
 
         self.dz3 = self.a3 - y_hat
         self.dw3 = self.dz3.dot(self.a2.T) / self.batch_size
-        self.db2 = np.sum(self.dz3) / self.batch_size
+        self.db3 = np.sum(self.dz3) / self.batch_size
 
         self.dz2 = self.w3.T.dot(self.dz3) * self.sigmoid_d(self.z2)
         self.dw2 = self.dz2.dot(self.a1.T) / self.batch_size
@@ -112,11 +112,15 @@ class Network:
         self.w3 = self.w3 - self.alpha * self.dw3
         self.b3 = self.b3 - self.alpha * self.db3
 
-    def gradient_descent(self):
-        pass
+    def gradient_descent(self, iterations):
+        for i in range(1, iterations + 1):
+            inputs, expected = self.get_batch()
+            self.for_prop(inputs)
+            self.back_prop(inputs, expected)
+            self.update_params()
+
+            if not i % 10:
+                print(f"Iteration:\t{i}")
 
 
 network = Network()
-print(network.train[47])
-print(network.train.shape)
-print("done")
