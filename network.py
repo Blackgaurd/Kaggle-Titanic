@@ -173,6 +173,3 @@ class Network:
             writer = csv.writer(f)
             writer.writerow(["PassengerId", "Survived"])
             writer.writerows(rows)
-
-network = Network()
-network.make_submission("test_sub.csv")
