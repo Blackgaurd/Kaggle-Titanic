@@ -1,2 +1,11 @@
+# vscode
+.vscode
+
 # training and testing data
 /input
+
+# virtual environment
+/venv
+
+# test files
+test.py
