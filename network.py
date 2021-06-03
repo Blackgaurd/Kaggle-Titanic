@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+np.random.seed(1)
+
 
 class Network:
     def __init__(self, train_file_path="input/train.csv", batch_size=15, learning_rate=0.1):
@@ -121,6 +123,14 @@ class Network:
 
             if not i % 10:
                 print(f"Iteration:\t{i}")
+                predictions = self.get_predictions(self.a3)
+                accuracy = self.get_accuracy(predictions, expected)
+                print(f"Accuracy:\t{accuracy}\n")
 
+    def get_predictions(self, outputs):
+        return np.argmax(outputs, 0)
+
+    def get_accuracy(self, predictions, expected):
+        return np.sum(predictions == expected) / expected.size
 
 network = Network()
