@@ -7,6 +7,9 @@
 # training and testing data
 /input
 
+# submission file
+submission.csv
+
 # virtual environment
 /venv
 

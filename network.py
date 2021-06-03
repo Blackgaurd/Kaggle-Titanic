@@ -7,6 +7,10 @@ np.random.seed(1)
 
 class Network:
     def __init__(self, train_file_path="input/train.csv", batch_size=15, learning_rate=0.1):
+        # make sure params are usable
+        assert(batch_size > 0)
+        assert(learning_rate > 0)
+
         # read and normalize train data
         print("Reading and normalizing training data...")
         train_data = pd.read_csv(train_file_path)
@@ -173,3 +177,5 @@ class Network:
             writer = csv.writer(f)
             writer.writerow(["PassengerId", "Survived"])
             writer.writerows(rows)
+
+        print("Submission complete!\n")
