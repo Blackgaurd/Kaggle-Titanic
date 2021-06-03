@@ -63,13 +63,19 @@ class Network:
     def softmax(self, x):
         return np.exp(x) / sum(np.exp(x))
 
+    def get_batch(self):
+        indices = np.random.choice(self.train.shape[0], self.batch_size, replace=False)
+        choices = self.train[indices]
+
+        inputs = choices.T[1:]
+        expected = choices.T[0]
+
+        return inputs, expected
+
     def for_prop(self):
         pass
 
     def back_prop(self):
-        pass
-
-    def get_batch(self):
         pass
 
     def gradient_descent(self):
