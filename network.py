@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import csv
 
 np.random.seed(1)
 
@@ -87,7 +88,7 @@ class Network:
         self.z2 = self.w2.dot(self.a1) + self.b2
         self.a2 = self.sigmoid(self.z2)
 
-        self.z3 = self.w3.dot(self.a2) #+ self.b3
+        self.z3 = self.w3.dot(self.a2) + self.b3
         self.a3 = self.softmax(self.z3)
 
     def back_prop(self, inputs, expected):
@@ -133,4 +134,45 @@ class Network:
     def get_accuracy(self, predictions, expected):
         return np.sum(predictions == expected) / expected.size
 
+    def make_submission(self, output_file_path, test_file_path="input/test.csv"):
+        print("Reading and normalizing test data...")
+        test = pd.read_csv(test_file_path)
+
+        ids = test["PassengerId"].to_numpy()
+        test = test[["Pclass", "Sex", "Age", "SibSp", "Parch", "Embarked"]]
+
+        # fill in missing data
+        test["Age"].fillna(int(test["Age"].mean()), inplace=True)
+        test["Embarked"].fillna("S", inplace=True)
+
+        # replace non-numerical values with numbers
+        test["Sex"].replace({"male": 0, "female": 1}, inplace=True)
+        test["Embarked"].replace({"S": 0, "C": 1, "Q": 2}, inplace=True)
+
+        # to numpy
+        test = test.to_numpy().astype(float)
+
+        # normalize data (standard score)
+        for i in range(test.shape[1]):
+            test[:, i] = (test[:, i] - test[:, i].mean()) / test[:, i].std()
+
+        # make predictions
+        z1 = self.w1.dot(test.T) + self.b1
+        a1 = self.sigmoid(z1)
+
+        z2 = self.w2.dot(a1) + self.b2
+        a2 = self.sigmoid(z2)
+
+        z3 = self.w3.dot(a2) + self.b3
+        a3 = self.softmax(z3)
+
+        predictions = self.get_predictions(a3)
+
+        rows = np.vstack((ids, predictions)).T.tolist()
+        with open(output_file_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["PassengerId", "Survived"])
+            writer.writerows(rows)
+
 network = Network()
+network.make_submission("test_sub.csv")
