@@ -54,11 +54,11 @@ class Network:
             self.dz3, self.dw3, self.bd3
         ) = [None for i in range(15)]
 
-    def relu(self):
-        pass
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
 
-    def relu_d(self):
-        pass
+    def sigmoid_d(self, x):
+        return self.sigmoid(x) * (1 - self.sigmoid(x))
 
     def for_prop(self):
         pass
