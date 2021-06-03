@@ -60,6 +60,9 @@ class Network:
     def sigmoid_d(self, x):
         return self.sigmoid(x) * (1 - self.sigmoid(x))
 
+    def softmax(self, x):
+        return np.exp(x) / sum(np.exp(x))
+
     def for_prop(self):
         pass
 
