@@ -9,6 +9,7 @@
 
 # submission file
 submission.csv
+submission_rng.csv
 
 # virtual environment
 /venv
