@@ -23,7 +23,8 @@ class Network:
         self.train = train_data.to_numpy()
 
         # normalize data (standard score)
-        for i in range(self.train.shape[1]):
+        # don't normalize "Survived" because it is expected values
+        for i in range(1, self.train.shape[1]):
             self.train[:, i] = (self.train[:, i] - self.train[:, i].mean()) / self.train[:, i].std()
 
         print("Initiating other class variables...")
@@ -72,11 +73,44 @@ class Network:
 
         return inputs, expected
 
-    def for_prop(self):
-        pass
+    def one_hot(self, x):
+        a = [0, 0]
+        a[x] = 1
+        return np.array(a)
 
-    def back_prop(self):
-        pass
+    def for_prop(self, inputs):
+        self.z1 = self.w1.dot(inputs) + self.b1
+        self.a1 = self.sigmoid(self.z1)
+
+        self.z2 = self.w2.dot(self.a1) + self.b2
+        self.a2 = self.sigmoid(self.z1)
+
+        self.z3 = self.w3.dot(self.a2) + self.b3
+        self.a3 = self.softmax(self.z3)
+
+    def back_prop(self, inputs, expected):
+        # calculate errors
+        y_hat = self.one_hot(expected)
+
+        self.dz3 = self.a3 - y_hat
+        self.dw3 = self.dz3.dot(self.a2.T) / self.batch_size
+        self.db2 = np.sum(self.dz3) / self.batch_size
+
+        self.dz2 = self.w3.T.dot(self.dz3) * self.sigmoid_d(self.z2)
+        self.dw2 = self.dz2.dot(self.a1.T) / self.batch_size
+        self.db2 = np.sum(self.dz2) / self.batch_size
+
+        self.dz1 = self.w2.T.dot(self.dz2) * self.sigmoid_d(self.z1)
+        self.dw1 = self.dz1.dot(inputs.T) / self.batch_size
+        self.db1 = np.sum(self.dz1) / self.batch_size
+
+    def update_params(self):
+        self.w1 = self.w1 - self.alpha * self.dw1
+        self.b1 = self.b1 - self.alpha * self.db1
+        self.w2 = self.w2 - self.alpha * self.dw2
+        self.b2 = self.b2 - self.alpha * self.db2
+        self.w3 = self.w3 - self.alpha * self.dw3
+        self.b3 = self.b3 - self.alpha * self.db3
 
     def gradient_descent(self):
         pass
